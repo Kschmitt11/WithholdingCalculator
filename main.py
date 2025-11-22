@@ -42,28 +42,42 @@ def get_filing_status(prompt="What is your filing status? Example: single, mfj, 
         return user_filing_status
     else:
         print("invalid input")
-        get_filing_status()
+        return get_filing_status()
+
+
 
 def get_gross_income(prompt="What is your gross annual income (rounded up or down)? Example: 65000"):
     #Prompts user for annual gross income and returns it for the final tax calculation
     gross_income = input(prompt).strip()
     if gross_income.isnumeric():
-        return gross_income
+        return int(gross_income)
 
     else:
         print("invalid input")
-        get_gross_income()
+        return get_gross_income()
 
 def calculate_taxes(filing_status, gross_income):
     #Calculates user's taxes by using the filing status input and the user's gross income
     brackets = TAX_BRACKETS[filing_status]
-    for amount, tax in brackets:
-        if amount <= gross_income:
-
-        print(f"Amount: {amount}, Tax: {tax}")
     deduction = STANDARD_DEDUCTION[filing_status]
-    print(deduction)
+    taxable_income = gross_income - deduction
+
+    print(taxable_income)
+    taxes_owed = 0
+    previous_limit = 0
+
+    for limit, tax in brackets:
+        if taxable_income > limit:
+            if previous_limit == 0:
+                taxes_owed += limit * tax
+            else:
+                taxes_owed += (limit - previous_limit) * tax
+            previous_limit = limit
+            # print(f"Taxes owed at {limit}: {taxes_owed}")
+        else:
+            taxes_owed += (taxable_income - previous_limit) * tax
+            break
+    print("Taxes owed:", taxes_owed)
 
 
-    est_fed_tax_owed = 0
-print(calculate_taxes(get_filing_status(), get_gross_income()))
+calculate_taxes(get_filing_status(), get_gross_income())
